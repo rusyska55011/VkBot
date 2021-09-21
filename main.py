@@ -3,7 +3,7 @@ from random import randint
 from threading import Thread
 from root import VkBot, VkBase
 
-import settings
+from settings import VkSettings
 
 
 class AddUsersChecker:
@@ -35,12 +35,12 @@ class AddUsersChecker:
             return []
 
 
-vk_bot = VkBot(access_token=settings.access_token, user_id=settings.user_id)
+vk_bot = VkBot(access_token=VkSettings.access_token, user_id=VkSettings.user_id)
 vk_base = VkBase()
 
 # Запускаем потоки
-longpool_thread = Thread(target=vk_bot.start_longpoll, args=(settings.chat_bot_asks,))
+longpool_thread = Thread(target=vk_bot.start_longpoll, args=(VkSettings.chat_bot_asks,))
 longpool_thread.start()
 
-userschecker_thread = Thread(target=AddUsersChecker(settings.message_for_added_users, vk_bot.get_friends_list()).start)
+userschecker_thread = Thread(target=AddUsersChecker(VkSettings.message_for_added_users, vk_bot.get_friends_list()).start)
 userschecker_thread.start()
