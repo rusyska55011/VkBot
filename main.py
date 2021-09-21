@@ -110,18 +110,22 @@ class VkBot(Bot):
         self.vk = vk_api.VkApi(token=access_token)
         self.base = VkBase()
 
+    def get_vk_name(self, vk_id: int) -> str:
+        user_get = self.vk.method('users.get', {
+            'user_id': vk_id
+        })[0]
+        return user_get['first_name'] + ' ' + user_get['last_name']
+
+    def get_friends_list(self) -> list:
+        friends = self.vk.method('friends.get')
+        return friends['items']
+
     def send_message(self, vk_id: int, message: str):
         self.vk.method('messages.send', {
             'user_id': vk_id,
             'message': message,
             'random_id': get_random_id()
         })
-
-    def get_vk_name(self, vk_id: int):
-        user_get = self.vk.method('users.get', {
-            'user_id': vk_id
-        })[0]
-        return user_get['first_name'] + ' ' + user_get['last_name']
 
     def push_messages(self, message: str):
         base_items = self.base.read()
@@ -138,6 +142,8 @@ class VkBot(Bot):
     def add_by_id(self, vk_id: int):
         name = self.get_vk_name(vk_id)
         self.base.add([vk_id, name])
+
+
 
 
 access_token, user_id = dotenv_values('.env').values()
