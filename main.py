@@ -1,5 +1,6 @@
 from time import sleep
 from random import randint
+from threading import Thread
 from root import VkBot, VkBase
 
 import settings
@@ -16,14 +17,14 @@ class AddUsersChecker:
             check = self.check_friends(self.friends_list, get_friends)
 
             if check:
-                print('Обнаружен новые друзья! ID:', check)
+                print('Обнаружены новые друзья! ID:', check)
                 for vk_id in check:
                     vk_bot.send_message(vk_id, self.message_for_added_users)
                 # Чтобы бот забывал друзей, которые удались из списка друзей,
                 # можно передвинуть переменную за блок if
-                self.friends_list = get_friends
+            self.friends_list = get_friends
 
-            sleep(randint(50, 150))
+            sleep(randint(5, 15))
 
     @staticmethod
     def check_friends(actual_friends_list: list, new_friends_list: list) -> list:
@@ -37,6 +38,9 @@ class AddUsersChecker:
 vk_bot = VkBot(access_token=settings.access_token, user_id=settings.user_id)
 vk_base = VkBase()
 
-AddUsersChecker(settings.message_for_added_users, vk_bot.get_friends_list()).start()
+# Запускаем потоки
+longpool_thread = Thread(target=vk_bot.start_longpoll, args=(settings.chat_bot_asks,))
+longpool_thread.start()
 
-
+userschecker_thread = Thread(target=AddUsersChecker(settings.message_for_added_users, vk_bot.get_friends_list()).start)
+userschecker_thread.start()
