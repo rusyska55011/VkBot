@@ -1,7 +1,8 @@
 from time import sleep
 from random import randint
-from dotenv import dotenv_values
 from root import VkBot, VkBase
+
+import settings
 
 
 class AddUsersChecker:
@@ -33,10 +34,9 @@ class AddUsersChecker:
             return []
 
 
-access_token, user_id = dotenv_values('.env').values()
-vk_bot = VkBot(access_token=access_token, user_id=user_id)
+vk_bot = VkBot(access_token=settings.access_token, user_id=settings.user_id)
 vk_base = VkBase()
 
-AddUsersChecker('Привет, +name+! Спасибо что добавился в друзья!', vk_bot.get_friends_list()).start()
+AddUsersChecker(settings.message_for_added_users, vk_bot.get_friends_list()).start()
 
 
