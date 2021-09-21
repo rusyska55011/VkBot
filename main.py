@@ -1,9 +1,12 @@
 import sqlite3
-from dotenv import dotenv_values
-import vk_api
-from vk_api.utils import get_random_id
+
 from time import sleep
 from random import randint
+
+import vk_api
+from dotenv import dotenv_values
+from vk_api.utils import get_random_id
+
 
 
 class DataBase:
@@ -78,7 +81,29 @@ class VkBase(DataBase):
         super().__init__(table_name='vk', cols='vk_id INT, name TEXT', key_col_name='vk_id')
 
 
-class VkBot:
+class Bot:
+    @staticmethod
+    def _find_vars_in_text(text: str, vars: dict) -> str:
+        """ Переменная считывается если она обернута в знак +переменная+ """
+
+        plus_amount = len([letter for letter in text if letter == '+'])
+        if plus_amount % 2:
+            print(
+                f'Число знаков "+" равно {plus_amount}. Оно должно быть как минимум четным.\nПроверь правильность написания')
+            return 'Error'
+
+        splited = text.split('+')
+        for item_num in range(1, len(splited), 2):
+            var = splited[item_num]
+            try:
+                splited[item_num] = str(vars[var])
+            except KeyError:
+                print(f'Значения "+{var}+" не существует')
+                return 'Error'
+        return ''.join(splited)
+
+
+class VkBot(Bot):
     def __init__(self, access_token, user_id):
         self.access_token = access_token
         self.user_id = user_id
@@ -93,7 +118,7 @@ class VkBot:
             'random_id': get_random_id()
         })
 
-    def __get_vk_name(self, vk_id: int):
+    def get_vk_name(self, vk_id: int):
         user_get = self.vk.method('users.get', {
             'user_id': vk_id
         })[0]
@@ -102,8 +127,14 @@ class VkBot:
     def push_messages(self, message):
         base_items = self.base.read()
         for vk_id, name in base_items:
-            self.__send_message(vk_id, message)
+            total_message = self._find_vars_in_text(message, vars={'vk_id': vk_id, 'name': name})
+            if total_message == 'Error':
+                print('Рассылка отменена по причине ошибки.')
+                break
+            self.__send_message(vk_id, total_message)
             sleep(randint(1, 5))
+        else:
+            print('Рассылка успешно завершена!')
 
 
 access_token, user_id = dotenv_values('.env').values()
