@@ -135,6 +135,10 @@ class VkBot(Bot):
         else:
             print('Рассылка успешно завершена!')
 
+    def add_by_id(self, vk_id: int):
+        name = self.get_vk_name(vk_id)
+        self.base.add([vk_id, name])
+
 
 access_token, user_id = dotenv_values('.env').values()
 
