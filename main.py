@@ -2,6 +2,8 @@ import sqlite3
 from dotenv import dotenv_values
 import vk_api
 from vk_api.utils import get_random_id
+from time import sleep
+from random import randint
 
 
 class DataBase:
@@ -95,6 +97,7 @@ class VkBot:
         base_items = self.base.read()
         for vk_id, name in base_items:
             self.__send_message(vk_id, message)
+            sleep(randint(1, 5))
 
 
 access_token, user_id = dotenv_values('.env').values()
