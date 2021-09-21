@@ -86,12 +86,18 @@ class VkBot:
         self.vk = vk_api.VkApi(token=access_token)
         self.base = VkBase()
 
-    def __send_message(self, vk_id, message):
+    def __send_message(self, vk_id: int, message: str):
         self.vk.method('messages.send', {
             'user_id': vk_id,
             'message': message,
             'random_id': get_random_id()
         })
+
+    def __get_vk_name(self, vk_id: int):
+        user_get = self.vk.method('users.get', {
+            'user_id': vk_id
+        })[0]
+        return user_get['first_name'] + ' ' + user_get['last_name']
 
     def push_messages(self, message):
         base_items = self.base.read()
@@ -103,4 +109,3 @@ class VkBot:
 access_token, user_id = dotenv_values('.env').values()
 
 vk = VkBot(access_token=access_token, user_id=user_id)
-vk.push_messages('11')
