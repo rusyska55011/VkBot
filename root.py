@@ -5,6 +5,7 @@ from random import randint
 
 import vk_api
 from vk_api.utils import get_random_id
+from vk_api.longpoll import VkLongPoll, VkEventType
 
 
 class DataBase:
@@ -117,6 +118,19 @@ class VkBot(Bot):
     def get_friends_list(self) -> list:
         friends = self.vk.method('friends.get')
         return friends['items']
+
+    def start_longpoll(self, bot_asks):
+        longpoll = VkLongPoll(self.vk)
+        for event in longpoll.listen():
+            if event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text:
+                if event.from_user:
+                    message_from = str(event.text).capitalize()
+                    try:
+                        message = bot_asks[message_from]
+                    except KeyError:
+                        continue
+                    else:
+                        self.send_message(event.user_id, message)
 
     def send_message(self, vk_id: int, message: str):
         message = self._find_vars_in_text(message, vars={'vk_id': vk_id, 'name': self.get_vk_name(vk_id)})
