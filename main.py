@@ -87,8 +87,7 @@ class Bot:
 
         plus_amount = len([letter for letter in text if letter == '+'])
         if plus_amount % 2:
-            print(
-                f'Число знаков "+" равно {plus_amount}. Оно должно быть как минимум четным.\nПроверь правильность написания')
+            print(f'Число знаков "+" равно {plus_amount}. Оно должно быть как минимум четным.\nПроверь правильность написания')
             return 'Error'
 
         splited = text.split('+')
@@ -121,6 +120,9 @@ class VkBot(Bot):
         return friends['items']
 
     def send_message(self, vk_id: int, message: str):
+        message = self._find_vars_in_text(message, vars={'vk_id': vk_id, 'name': self.get_vk_name(vk_id)})
+        if message == 'Error':
+            return 'Error'
         self.vk.method('messages.send', {
             'user_id': vk_id,
             'message': message,
@@ -130,11 +132,10 @@ class VkBot(Bot):
     def push_messages(self, message: str):
         base_items = self.base.read()
         for vk_id, name in base_items:
-            total_message = self._find_vars_in_text(message, vars={'vk_id': vk_id, 'name': name})
-            if total_message == 'Error':
-                print('Рассылка отменена по причине ошибки.')
+            answer = self.send_message(vk_id, message)
+            if answer == 'Error':
+                print('Рассылка остановлена из-за ошибки.')
                 break
-            self.send_message(vk_id, total_message)
             sleep(randint(1, 5))
         else:
             print('Рассылка успешно завершена!')
@@ -149,3 +150,6 @@ class VkBot(Bot):
 access_token, user_id = dotenv_values('.env').values()
 
 vk = VkBot(access_token=access_token, user_id=user_id)
+vk.push_messages('Привет, +name+, я хотел бы тебе сказать что твой ID = +vk_id+')
+
+#vk.push_messages('+name+, Привет я хочу  тебе сказать что твой ид = +vk_id+')
