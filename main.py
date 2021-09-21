@@ -8,7 +8,6 @@ from dotenv import dotenv_values
 from vk_api.utils import get_random_id
 
 
-
 class DataBase:
     db_name = 'ClientBase.db'
 
@@ -111,7 +110,7 @@ class VkBot(Bot):
         self.vk = vk_api.VkApi(token=access_token)
         self.base = VkBase()
 
-    def __send_message(self, vk_id: int, message: str):
+    def send_message(self, vk_id: int, message: str):
         self.vk.method('messages.send', {
             'user_id': vk_id,
             'message': message,
@@ -124,14 +123,14 @@ class VkBot(Bot):
         })[0]
         return user_get['first_name'] + ' ' + user_get['last_name']
 
-    def push_messages(self, message):
+    def push_messages(self, message: str):
         base_items = self.base.read()
         for vk_id, name in base_items:
             total_message = self._find_vars_in_text(message, vars={'vk_id': vk_id, 'name': name})
             if total_message == 'Error':
                 print('Рассылка отменена по причине ошибки.')
                 break
-            self.__send_message(vk_id, total_message)
+            self.send_message(vk_id, total_message)
             sleep(randint(1, 5))
         else:
             print('Рассылка успешно завершена!')
