@@ -14,6 +14,7 @@ class DataBase:
         self.key = key_col_name
 
         self.db = sqlite3.connect(self.db_name)
+        self.create_table()
 
     @staticmethod
     def __get_cols_names(cols) -> str:
@@ -74,3 +75,29 @@ class VkBase(DataBase):
     def __init__(self):
         super().__init__(table_name='vk', cols='vk_id INT, name TEXT', key_col_name='vk_id')
 
+
+class VkBot:
+    def __init__(self, access_token, user_id):
+        self.access_token = access_token
+        self.user_id = user_id
+
+        self.vk = vk_api.VkApi(token=access_token)
+        self.base = VkBase()
+
+    def __send_message(self, vk_id, message):
+        self.vk.method('messages.send', {
+            'user_id': vk_id,
+            'message': message,
+            'random_id': get_random_id()
+        })
+
+    def push_messages(self, message):
+        base_items = self.base.read()
+        for vk_id, name in base_items:
+            self.__send_message(vk_id, message)
+
+
+access_token, user_id = dotenv_values('.env').values()
+
+vk = VkBot(access_token=access_token, user_id=user_id)
+vk.push_messages('11')
