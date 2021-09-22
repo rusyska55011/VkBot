@@ -1,18 +1,17 @@
-import root
-import main
+import vk
 from settings import VkSettings
 
 
 class Vk:
     def __init__(self):
-        self.vk_base = root.VkBase()
-        self.vk_bot = root.VkBot(access_token=VkSettings.access_token)
+        self.vk_base = vk.VkBase()
+        self.vk_bot = vk.VkBot(access_token=VkSettings.access_token)
 
     def start_chat_bot(self):
-        main.LongPool(self.vk_bot, VkSettings.chat_bot_asks).start()
+        vk.LongPool(self.vk_bot, VkSettings.chat_bot_asks).start()
 
     def start_friend_checker(self):
-        main.AddUsersChecker(self.vk_bot, VkSettings.message_for_added_users, self.vk_bot.get_friends_list()).start()
+        vk.AddUsersChecker(self.vk_bot, VkSettings.message_for_added_users, self.vk_bot.get_friends_list()).start()
 
     def push(self, message: str=None):
         if not message:

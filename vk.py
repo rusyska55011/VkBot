@@ -1,6 +1,7 @@
 from time import sleep
 from random import randint
 from threading import Thread
+from root import VkBot, VkBase
 
 
 class AddUsersChecker:
