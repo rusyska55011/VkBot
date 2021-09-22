@@ -1,8 +1,5 @@
-from dotenv import dotenv_values
-
-
 class VkSettings:
-    access_token, user_id = dotenv_values('.env').values()
+    access_token = 'токен'
 
     default_pushing_message = 'Привет, +name+! Ты попал под пуш сообщений!'
     message_for_added_users = 'Привет, +name+! Спасибо что добавился в друзья!'
