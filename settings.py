@@ -3,6 +3,8 @@ from dotenv import dotenv_values
 
 class VkSettings:
     access_token, user_id = dotenv_values('.env').values()
+
+    default_pushing_message = 'Привет, +name+! Ты попал под пуш сообщений!'
     message_for_added_users = 'Привет, +name+! Спасибо что добавился в друзья!'
     chat_bot_asks = {
         'привет': 'Доброго времени суток, +name+!',

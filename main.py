@@ -1,25 +1,27 @@
 from time import sleep
 from random import randint
 from threading import Thread
-from root import VkBot, VkBase
-
-from settings import VkSettings
 
 
 class AddUsersChecker:
-    def __init__(self, message_for_added_users: str, friends_list: list):
+    def __init__(self, vk_bot, message_for_added_users: str, friends_list: list):
         self.message_for_added_users = message_for_added_users
         self.friends_list = friends_list
+        self.vk_bot = vk_bot
 
     def start(self):
+        userschecker_thread = Thread(target=self.__process)
+        userschecker_thread.start()
+
+    def __process(self):
         while True:
-            get_friends = vk_bot.get_friends_list()
+            get_friends = self.vk_bot.get_friends_list()
             check = self.check_friends(self.friends_list, get_friends)
 
             if check:
                 print('Обнаружены новые друзья! ID:', check)
                 for vk_id in check:
-                    vk_bot.send_message(vk_id, self.message_for_added_users)
+                    self.vk_bot.send_message(vk_id, self.message_for_added_users)
                 # Чтобы бот забывал друзей, которые удались из списка друзей,
                 # можно передвинуть переменную за блок if
             self.friends_list = get_friends
@@ -35,12 +37,11 @@ class AddUsersChecker:
             return []
 
 
-vk_bot = VkBot(access_token=VkSettings.access_token, user_id=VkSettings.user_id)
-vk_base = VkBase()
+class LongPool:
+    def __init__(self, vk_bot, bot_asks: dict):
+        self.bot_asks = bot_asks
+        self.vk_bot = vk_bot
 
-# Запускаем потоки
-longpool_thread = Thread(target=vk_bot.start_longpoll, args=(VkSettings.chat_bot_asks,))
-longpool_thread.start()
-
-userschecker_thread = Thread(target=AddUsersChecker(VkSettings.message_for_added_users, vk_bot.get_friends_list()).start)
-userschecker_thread.start()
+    def start(self):
+        longpool_thread = Thread(target=self.vk_bot.start_longpoll, args=(self.bot_asks,))
+        longpool_thread.start()

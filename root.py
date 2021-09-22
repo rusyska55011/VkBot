@@ -102,9 +102,8 @@ class Bot:
 
 
 class VkBot(Bot):
-    def __init__(self, access_token, user_id):
+    def __init__(self, access_token):
         self.access_token = access_token
-        self.user_id = user_id
 
         self.vk = vk_api.VkApi(token=access_token)
         self.base = VkBase()
